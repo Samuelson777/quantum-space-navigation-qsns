@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Space Navigation System (QSNS) - Research & Interactive Architecture</title>
+    <!-- Chosen Palette: Deep Space Slate & Amber Scientific -->
+    <!-- Application Structure Plan: 
+        Designed as an intuitive, single-page interactive research dashboard and exploratory platform for the paper by SAMUELSON G.
+        1. Sticky Header & Executive Toolbar: Quick jump navigation, search/filter bar across all sections, author attribution.
+        2. Executive KPI Cards: Real-time highlights of metrological breakthroughs (accelerometer stability, gyro drift, LRI noise, XNAV accuracy, outage localization).
+        3. Interactive Section 1 (Quantum Core & Physics): Interactive Mach-Zehnder cold-atom sensitivity simulator (Chart.js), light-pulse phase equation breakdown, and interactive sensor comparison matrix (Table 1).
+        4. Interactive Section 2 (XNAV & Barycentric Framing): Millisecond pulsar vs Crab high-flux timing trade-off simulator (Chart.js), DSAC clock coupling, and beacon performance database (Table 2).
+        5. Interactive Section 3 (Surveillance Bot Swarm & LRI): Real-time environmental anomaly simulator (micrometeoroid impact, thruster shock, space weather drag) showing LRI range residual responses and robust weighting activations.
+        6. Interactive Section 4 (Adaptive AI & Factor Graph): Interactive multi-agent Factor Graph node viewer (GTSAM formulation) showing probabilistic measurement residual updates and DDPG process noise covariance matrix tuning.
+        7. Interactive Section 5 (Flight Heritage & CARIOQA Roadmap): Interactive timeline of spaceflight pathfinders (CAL, CSS, CARIOQA 2030) and interactive subsystem readiness matrix (Table 3).
+        8. Section 6 (Formal Declarations & References): Complete publishing declarations (Author contributions, funding, competing interests, hardware traceability, safety/ethics) and searchable database of 22 references.
+    -->
+    <!-- Visualization & Content Choices:
+        - Quantum Sensitivity & Allan Variance: Dynamic Chart.js line plot simulating single-shot sensitivity vs interrogation time T and long-term integration drift (NO SVG, canvas only).
+        - XNAV Position Error Convergence: Dynamic Chart.js log-scale exposure chart demonstrating Crab vs MSP position uncertainty reduction over integration time.
+        - Surveillance Bot Anomaly Response: Dynamic Chart.js multi-axis timeline showing LRI range residuals, innovation metric Δχ², and adaptive robust weighting W_k.
+        - Factor Graph Interactive Topology: Clean HTML/CSS card nodes with dynamic state inspection for primary spacecraft and surveillance bots.
+        - Sensor Tables: Interactive HTML filterable tables with sorting capability.
+        - Icons: Pure Unicode symbols and CSS styled badges (NO SVG graphics, NO Mermaid JS).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .tab-active {
+            border-bottom: 3px solid #3b82f6;
+            color: #1e40af;
+            font-weight: 700;
+        }
+        /* Custom scrollbar for deep content panels */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased leading-relaxed min-h-screen flex flex-col">
+
+    <!-- Header & Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl" text-blue-400">⚛️</span>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                            QSNS Research Architecture
+                            <span class="bg-blue-600 text-xs px-2 py-0.5 rounded text-blue-100 font-medium">v2.4 Autonomous</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">Author: <strong class="text-blue-300">SAMUELSON G</strong> | Quantum Space Navigation System</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-1 text-xs font-medium">
+                    <a href="#overview" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Overview</a>
+                    <a href="#quantum-core" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Quantum IMU</a>
+                    <a href="#xnav" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">XNAV & Clock</a>
+                    <a href="#swarm-lri" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Surveillance Swarm</a>
+                    <a href="#ai-fusion" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">AI & Factor Graph</a>
+                    <a href="#roadmap" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Flight Roadmap</a>
+                    <a href="#declarations" class="px-3 py-2 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition">Declarations & Ref</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Executive Summary Banner & Hero -->
+        <section id="overview" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-blue-50 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="relative z-10">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+                    <div>
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full mb-2">Original Research Monograph</span>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900">
+                            Quantum Space Navigation Architecture with Autonomous Adaptability via Cooperative Surveillance Bots
+                        </h2>
+                        <p class="text-sm text-slate-600 mt-1">
+                            Primary Investigator: <strong class="text-slate-900">SAMUELSON G</strong> | Theoretical Physics & Space Systems Metrology
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-500">Indexing:</span>
+                        <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">Cold-Atom Interferometry</span>
+                        <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">XNAV</span>
+                        <span class="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-200">LRI Swarm</span>
+                    </div>
+                </div>
+
+                <p class="text-slate-700 text-sm md:text-base leading-relaxed mb-6">
+                    Autonomous deep-space operations are fundamentally limited by reliance on Earth-bound radiometric networks (DSN), which suffer from multi-hour light travel latency and geometric dilution of precision. Classical inertial navigation systems (INS) suffer from unbounded dead-reckoning drift. This paper introduces a multi-layered <strong>Quantum Space Navigation System (QSNS)</strong> anchored by a magnetically launched <sup>87</sup>Rb Cold-Atom Interferometer (CAI), external X-ray Pulsar Navigation (XNAV), an inter-satellite heterodyne Laser Ranging Interferometer (LRI) surveillance bot swarm, and a Deep Deterministic Policy Gradient (DDPG) Reinforcement Learning Adaptive Kalman Filter (RL-AKF) coupled with Factor Graph Optimization.
+                </p>
+
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Accel Bias Drift</div>
+                        <div class="text-xl font-bold text-blue-700 mt-1">7 × 10⁻⁷ m/s²</div>
+                        <div class="text-xs text-emerald-600 font-semibold mt-0.5">100x vs Classical (48h)</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Gyro Bias Drift</div>
+                        <div class="text-xl font-bold text-blue-700 mt-1">4 × 10⁻⁷ rad/s</div>
+                        <div class="text-xs text-emerald-600 font-semibold mt-0.5">3x vs Classical (48h)</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">LRI Ranging Noise</div>
+                        <div class="text-xl font-bold text-indigo-700 mt-1">200 pm/√Hz</div>
+                        <div class="text-xs text-slate-600 mt-0.5">@ 5 Hz carrier (1064 nm)</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">XNAV Position Arc</div>
+                        <div class="text-xl font-bold text-amber-700 mt-1">&lt; 10 km</div>
+                        <div class="text-xs text-slate-600 mt-0.5">1 km in 1.4 h (1 m² array)</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition col-span-2 sm:col-span-1">
+                        <div class="text-xs font-medium text-slate-500 uppercase tracking-wider">Outage Error</div>
+                        <div class="text-xl font-bold text-emerald-700 mt-1">0.6517 m</div>
+                        <div class="text-xs text-slate-600 mt-0.5">RL-AKF (10s ref outage)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 1: Quantum Inertial Sensing Physics & Hybridization -->
+        <section id="quantum-core" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Section 1</span>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                    Quantum Inertial Core: Cold-Atom Interferometry & Stern-Gerlach Launching
+                </h3>
+                <p class="text-sm text-slate-600 mt-1">
+                    Matter-wave Mach-Zehnder interferometry, light-pulse phase equations, and dual-sensor classical hybridization.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Textual & Mathematical Derivations -->
+                <div class="lg:col-span-6 space-y-4 text-sm text-slate-700">
+                    <p>
+                        The core sensing element employs ultra-cold <sup>87</sup>Rb neutral atoms captured inside a 3D Magneto-Optical Trap (MOT) and cooled down to <span class="font-mono bg-slate-100 px-1 rounded text-slate-800">T_atoms ≈ 2.5 μK</span>. A coherent three-pulse <span class="font-semibold">π/2 - π - π/2</span> light-pulse sequence driven by counter-propagating Raman lasers with effective wavevector <span class="font-mono">k_eff</span> acts as matter-wave optical elements.
+                    </p>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs overflow-x-auto space-y-2">
+                        <div class="text-blue-400">// Relativistic Phase Difference Formulation</div>
+                        <div>ΔΦ_tot = ΔΦ_propagation + ΔΦ_separation + ΔΦ_laser</div>
+                        <div class="text-amber-300">// Operational Spaceflight Phase Shift Equation</div>
+                        <div>ΔΦ = k_eff · a T² + 2 k_eff · (Ω × v_l) T² - α T² + φ_vib</div>
+                    </div>
+                    <p>
+                        To resolve six-axis inertial dynamics in a compact form factor without complex multi-beam fountains, the QSNS uses a <strong>Stern-Gerlach magnetic launching technique</strong>. Pulsed magnetic field gradients accelerate the atomic cloud to <span class="font-semibold text-blue-700">v_l = 8.2 cm/s</span> along transverse axes. Alternating effective Raman wavevector signs (<em>k-reversal</em>) decouples linear acceleration <span class="font-mono">a</span> from Coriolis rotation rate <span class="font-mono">Ω</span> while canceling systematic light shifts.
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-blue-600 p-3 text-xs text-blue-900 rounded-r">
+                        <strong>Vibration Hybridization:</strong> Classical strapdown accelerometers and gyroscopes continuously track high-frequency mirror vibrations during the atomic cooling/interrogation dead time (<em>t_c</em>). In return, the absolute atomic phase projects onto the classical sensors to continuously estimate and null classical bias drift.
+                    </div>
+                </div>
+
+                <!-- Interactive Quantum Simulator -->
+                <div class="lg:col-span-6 bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>📊</span> Quantum Interrogation & Sensitivity Simulator
+                        </h4>
+                        <span class="text-xs bg-blue-100 text-blue-800 font-mono px-2 py-0.5 rounded">Interactive Model</span>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Interrogation Time T: <span id="val-T" class="text-blue-600 font-bold">400 ms</span></label>
+                            <input type="range" id="slider-T" min="50" max="1500" step="50" value="400" class="w-full accent-blue-600">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-700 mb-1">Atom Count N: <span id="val-N" class="text-blue-600 font-bold">1.0 × 10⁶</span></label>
+                            <input type="range" id="slider-N" min="1" max="10" step="1" value="5" class="w-full accent-blue-600">
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="quantumChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 text-center">
+                        Simulated single-shot acceleration sensitivity <span class="font-mono">σ_a ∝ 1/(k_eff T² √N)</span> vs. integration time τ.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Table 1: Metrological Performance Comparison -->
+            <div class="mt-8">
+                <h4 class="font-bold text-slate-900 text-base mb-3 flex items-center gap-2">
+                    <span>📋</span> Table 1: Comparative Metrological Performance Across Sensor Modalities
+                </h4>
+                <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                    <table class="w-full text-left text-xs text-slate-700">
+                        <thead class="bg-slate-100 text-slate-900 font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Sensor Architecture</th>
+                                <th class="p-3">Primary Sensing Physics</th>
+                                <th class="p-3">Rotational Drift / Stability</th>
+                                <th class="p-3">Linear Accel Stability</th>
+                                <th class="p-3">Spaceflight Trade-Offs</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Classical Mechanical IMU</td>
+                                <td class="p-3">Spinning / vibratory mass</td>
+                                <td class="p-3">~ 10⁻⁶ °/h</td>
+                                <td class="p-3">~ 7 × 10⁻⁵ m/s² (unassisted 48h)</td>
+                                <td class="p-3 text-red-600 font-medium">Mechanical wear, thermal drift</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Classical Optical (RLG / FOG)</td>
+                                <td class="p-3">Optical Sagnac phase shift</td>
+                                <td class="p-3">~ 10⁻⁴ °/h</td>
+                                <td class="p-3">N/A (requires pendulous mass)</td>
+                                <td class="p-3 text-amber-600 font-medium">Radiation darkening of fiber</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Standalone Cold-Atom (CAI)</td>
+                                <td class="p-3">Stimulated Raman <sup>87</sup>Rb pulses</td>
+                                <td class="p-3">~ 10⁻¹² °/h (theoretical)</td>
+                                <td class="p-3">&lt; 10⁻⁹ m/s² / √Hz (space target)</td>
+                                <td class="p-3 text-amber-600 font-medium">Cyclic dead time (Dick effect)</td>
+                            </tr>
+                            <tr class="hover:bg-blue-50/50 bg-blue-50/20 font-medium">
+                                <td class="p-3 font-bold text-blue-900">QSNS Six-Axis Q-IMU (Hybrid)</td>
+                                <td class="p-3 text-blue-900">Stern-Gerlach <sup>87</sup>Rb + Classical IMU</td>
+                                <td class="p-3 text-blue-900 font-bold">4 × 10⁻⁷ rad/s (48h bias)</td>
+                                <td class="p-3 text-blue-900 font-bold">7 × 10⁻⁷ m/s² (48h bias)</td>
+                                <td class="p-3 text-emerald-700 font-semibold">Continuous bandwidth + zero bias drift</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Absolute Pulsar Navigation & Atomic Clock Framing -->
+        <section id="xnav" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Section 2</span>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                    Absolute Deep-Space Framing: X-Ray Pulsar Navigation & Atomic Clock Reference
+                </h3>
+                <p class="text-sm text-slate-600 mt-1">
+                    Barycentric phase modeling, grazing-incidence optical concentrators, and Deep Space Atomic Clock (DSAC) decoupling.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- XNAV Simulator Controls & Plot -->
+                <div class="lg:col-span-6 bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>🌌</span> XNAV Position Convergence Explorer
+                        </h4>
+                        <span class="text-xs bg-amber-100 text-amber-800 font-mono px-2 py-0.5 rounded">Observational Model</span>
+                    </div>
+
+                    <!-- Beacon Selector -->
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <button id="btn-crab" onclick="setXnavBeacon('crab')" class="py-2 px-3 rounded font-bold border border-amber-300 bg-amber-100 text-amber-900 text-center transition">Crab Pulsar (High Flux)</button>
+                        <button id="btn-b1937" onclick="setXnavBeacon('b1937')" class="py-2 px-3 rounded font-semibold border border-slate-200 bg-white text-slate-700 text-center transition hover:bg-slate-100">PSR B1937+21 (Ultra Stable)</button>
+                        <button id="btn-multi" onclick="setXnavBeacon('multi')" class="py-2 px-3 rounded font-semibold border border-slate-200 bg-white text-slate-700 text-center transition hover:bg-slate-100">8-MSP Constellation</button>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="xnavChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 text-center">
+                        Predicted 3D Position RMS Error (km) vs Exposure Time (seconds).
+                    </p>
+                </div>
+
+                <!-- Descriptive Content & Table 2 -->
+                <div class="lg:col-span-6 space-y-4 text-sm text-slate-700">
+                    <p>
+                        To bound the quadratic position integration drift of inertial navigation over long interplanetary cruises, the QSNS anchors its temporal reference to Millisecond Rotation-Powered Pulsars (MSPs) and the Crab Pulsar (PSR B0531+21).
+                    </p>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs overflow-x-auto space-y-2">
+                        <div class="text-amber-400">// Barycentric Pulse Phase Model</div>
+                        <div>φ(t_SSB) = φ_T0 + Σ [F_{i-1} / i!] · (t_SSB - T_0)^i</div>
+                        <div class="text-blue-300">// Spacecraft Clock & Vector Projection Coupling</div>
+                        <div>φ(t) = φ_0(t - b(t)/c + (n · x(t))/c) + δφ</div>
+                    </div>
+                    <p>
+                        A key architectural innovation is coupling a <strong>Deep Space Atomic Clock (DSAC)</strong> (<span class="font-mono">σ_y(1s) = 2 × 10⁻¹²</span>). In traditional XNAV, clock bias <span class="font-mono">b(t)</span> and spatial position <span class="font-mono">x(t)</span> are collinear along a single line of sight. Tight atomic clock constraints allow the QSNS to synthesize photons across sequential pointings, reducing the required optical payload mass.
+                    </p>
+
+                    <!-- Table 2 Inline -->
+                    <div class="border border-slate-200 rounded-lg overflow-hidden mt-2">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 text-slate-800 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-2">Pulsar Beacon</th>
+                                    <th class="p-2">Spin Period (P)</th>
+                                    <th class="p-2">Count Rate / Flux</th>
+                                    <th class="p-2">Operational Role</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr>
+                                    <td class="p-2 font-semibold">PSR B0531+21 (Crab)</td>
+                                    <td class="p-2">33 ms</td>
+                                    <td class="p-2 text-amber-700 font-bold">11,000 counts/s</td>
+                                    <td class="p-2">Rapid high-dynamic updates</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-semibold">PSR B1937+21</td>
+                                    <td class="p-2">1.5 ms</td>
+                                    <td class="p-2">1.1 counts/s</td>
+                                    <td class="p-2">Long-term ultra-stable anchor</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-semibold">PSR B1821-24</td>
+                                    <td class="p-2">3.05 ms</td>
+                                    <td class="p-2">High soft X-ray flux</td>
+                                    <td class="p-2">Orthogonal line-of-sight anchor</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Cooperative Surveillance Bot Swarm & Laser Ranging Metrology -->
+        <section id="swarm-lri" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Section 3</span>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                    Cooperative Surveillance Bot Swarm & Heterodyne Laser Metrology
+                </h3>
+                <p class="text-sm text-slate-600 mt-1">
+                    Nanometer laser ranging interferometry (LRI), early-warning hazard detection, and non-gravitational force separation.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Analytical Text -->
+                <div class="lg:col-span-6 space-y-4 text-sm text-slate-700">
+                    <p>
+                        Monolithic spacecraft remain vulnerable to unmodeled non-gravitational accelerations, attitude thruster micro-shocks, and hypervelocity micrometeoroid strikes that destroy quantum fringe contrast. The QSNS surrounds the primary vessel with a distributed formation of autonomous 6U/12U surveillance bots operating at baselines from <span class="font-semibold text-indigo-700">1 km to 200 km</span>.
+                    </p>
+                    <p>
+                        Each node is linked via a coherent heterodyne <strong>Laser Ranging Interferometer (LRI)</strong> operating at <span class="font-mono">λ = 1064 nm</span> with a thermal-shielded Fabry-Pérot reference cavity. A Triple Mirror Assembly (TMA) retro-reflector has its virtual vertex co-located at each vehicle's Center of Mass (CoM) to eliminate tilt-to-length noise.
+                    </p>
+                    <div class="bg-indigo-50 border-l-4 border-indigo-600 p-4 rounded-r space-y-2 text-xs text-indigo-950">
+                        <h5 class="font-bold text-indigo-900 text-sm">Surveillance Bot Shielding Capabilities:</h5>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>Micrometeoroid Warning:</strong> Detects impulse impacts (10 μg @ 15 km/s) on forward sentinels, warning the primary vessel prior to strike.</li>
+                            <li><strong>Thruster Shock Isolation:</strong> Offloads high-rate visual inspection and communications, keeping the main vessel in a quiet dynamical state.</li>
+                            <li><strong>Drag vs Gravity Separation:</strong> Differential ballistic coefficients between lightweight bots and heavy primary ship separate solar radiation drag from local gravity gradients (∇g).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Interactive Anomaly Response Simulator -->
+                <div class="lg:col-span-6 bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>🛡️</span> Swarm Anomaly & Robust Weighting Simulator
+                        </h4>
+                        <span class="text-xs bg-indigo-100 text-indigo-800 font-mono px-2 py-0.5 rounded">Live Signal Response</span>
+                    </div>
+
+                    <!-- Event Injector Buttons -->
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <button onclick="triggerAnomaly('micrometeoroid')" class="py-2 px-2 bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold border border-rose-300 rounded text-center transition">Inject Micrometeoroid</button>
+                        <button onclick="triggerAnomaly('thruster')" class="py-2 px-2 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold border border-amber-300 rounded text-center transition">Inject Thruster Shock</button>
+                        <button onclick="triggerAnomaly('nominal')" class="py-2 px-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold border border-emerald-300 rounded text-center transition">Reset Nominal Signal</button>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="anomalyChart"></canvas>
+                    </div>
+                    <div id="anomaly-log" class="text-xs font-mono bg-slate-900 text-emerald-400 p-2.5 rounded border border-slate-800">
+                        STATUS: LRI Phase tracking nominal. Noise floor = 200 pm/√Hz. Robust Weight W_k = 1.00.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Adaptive Multi-Agent AI & Factor Graph Estimation -->
+        <section id="ai-fusion" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Section 4</span>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                    Adaptive AI Fusion & Multi-Agent Factor Graph Optimization
+                </h3>
+                <p class="text-sm text-slate-600 mt-1">
+                    Non-Gaussian strapdown filtering, Continuous-Action DDPG process noise adaptation, and GTSAM factor graph optimization.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Factor Graph Node Visualizer -->
+                <div class="lg:col-span-6 space-y-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span>🧠</span> Swarm Factor Graph Topology Inspector
+                    </h4>
+                    <p class="text-xs text-slate-600">
+                        Click graph factor nodes below to inspect historical relinearization and probabilistic measurement residuals in the GTSAM framework.
+                    </p>
+
+                    <div class="bg-slate-900 text-white p-5 rounded-xl space-y-4 border border-slate-800">
+                        <!-- Node Architecture Diagram using Flex/Grid HTML -->
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-4">
+                            <div onclick="inspectFactor('xnav')" class="cursor-pointer bg-amber-900/40 border border-amber-500/50 hover:border-amber-400 p-2.5 rounded-lg text-center flex-1 transition">
+                                <div class="text-xs text-amber-300 font-bold">Unary Factor</div>
+                                <div class="text-sm text-white font-mono mt-0.5">r_XNAV</div>
+                                <div class="text-[10px] text-amber-200/70">Pulsar TOA</div>
+                            </div>
+                            <div class="text-slate-600 font-mono text-xs">➔</div>
+                            <div onclick="inspectFactor('mothership')" class="cursor-pointer bg-blue-900/50 border border-blue-400 hover:border-blue-300 p-3 rounded-lg text-center flex-1 transition shadow-lg shadow-blue-900/30">
+                                <div class="text-xs text-blue-300 font-bold">Primary Vessel</div>
+                                <div class="text-sm text-white font-mono mt-0.5">X₀,ₖ [Q-IMU]</div>
+                                <div class="text-[10px] text-blue-200/70">6-DoF State</div>
+                            </div>
+                            <div class="text-slate-600 font-mono text-xs">⬌ LRI ⬌</div>
+                            <div onclick="inspectFactor('bot1')" class="cursor-pointer bg-emerald-900/40 border border-emerald-500/50 hover:border-emerald-400 p-2.5 rounded-lg text-center flex-1 transition">
+                                <div class="text-xs text-emerald-300 font-bold">Surveillance Bot 1</div>
+                                <div class="text-sm text-white font-mono mt-0.5">X₁,ₖ [LRI]</div>
+                                <div class="text-[10px] text-emerald-200/70">Sentinel Node</div>
+                            </div>
+                        </div>
+
+                        <!-- Inspection Box -->
+                        <div id="factor-details" class="font-mono text-xs bg-slate-950 p-3.5 rounded-lg border border-slate-800 text-slate-300 space-y-1.5">
+                            <div class="text-blue-400 font-bold">// Click any node above to inspect GTSAM Factor residual equations</div>
+                            <div>State Vector: X_k = [r^n, v^n, ψ, b_a, b_g]^T</div>
+                            <div>Optimization: MAP Maximum A Posteriori over full trajectory history</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DDPG RL-AKF Mathematical Breakdown -->
+                <div class="lg:col-span-6 space-y-4 text-sm text-slate-700">
+                    <h4 class="font-bold text-slate-900 text-sm">Reinforcement Learning Adaptive Kalman Filter (RL-AKF)</h4>
+                    <p>
+                        During extreme maneuvers or plasma blackout outages, standard Kalman filters diverge due to fixed process noise matrices <span class="font-mono">Q_k</span>. The QSNS integrates a continuous-action <strong>Deep Deterministic Policy Gradient (DDPG)</strong> network.
+                    </p>
+                    <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-xs space-y-2">
+                        <div class="text-emerald-400">// Incremental Chi-Square Robust Innovation Weighting</div>
+                        <div>K̄_k = P_{k,k-1} H_k^T [H_k P_{k,k-1} H_k^T + R̄_k]⁻¹</div>
+                        <div>x̂_k = x̂_{k,k-1} + W_k · K̄_k · y_k</div>
+                        <div class="text-amber-300">// DDPG Action Space Reward Optimization</div>
+                        <div>R_k = - || r_true,k - r̂_k ||_2</div>
+                    </div>
+                    <div class="bg-emerald-50 border-l-4 border-emerald-600 p-3 text-xs text-emerald-950 rounded-r">
+                        <strong>Performance Benchmark:</strong> During 10-second external reference outages, the DDPG RL-AKF maintains an average spatial error of <strong>0.6517 m</strong>. Across extended 300-second outages, error remains bounded to <strong>14.94 m</strong> (aided by odometry) vs. &gt; 500 m for conventional EKF filters.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Spaceborne Flight Heritage & CARIOQA Roadmap -->
+        <section id="roadmap" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Section 5</span>
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                    Spaceflight Readiness, Flight Heritage & Mission Roadmap
+                </h3>
+                <p class="text-sm text-slate-600 mt-1">
+                    Orbital pathfinders (CAL, CSS, GRACE-FO) and CARIOQA 2030 mission timeline.
+                </p>
+            </div>
+
+            <!-- Timeline -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-slate-50 p-4 rounded-lg border-t-4 border-blue-500 border-x border-b border-slate-200">
+                    <span class="text-xs font-bold text-blue-600">Flight Proven</span>
+                    <h5 class="font-bold text-slate-900 text-sm mt-1">ISS CAL & CSS Gyro</h5>
+                    <p class="text-xs text-slate-600 mt-1">
+                        Cold Atom Lab (CAL) BEC generation; Chinese Space Station cold-atom gyro measuring orbital rate (-1142 μrad/s).
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border-t-4 border-indigo-500 border-x border-b border-slate-200">
+                    <span class="text-xs font-bold text-indigo-600">Flight Proven</span>
+                    <h5 class="font-bold text-slate-900 text-sm mt-1">GRACE-FO LRI</h5>
+                    <p class="text-xs text-slate-600 mt-1">
+                        Over 106 days continuous heterodyne laser ranging at 200 pm/√Hz noise across 200 km inter-satellite link.
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border-t-4 border-amber-500 border-x border-b border-slate-200">
+                    <span class="text-xs font-bold text-amber-600">2022 - 2025</span>
+                    <h5 class="font-bold text-slate-900 text-sm mt-1">CARIOQA Phase A/B</h5>
+                    <p class="text-xs text-slate-600 mt-1">
+                        Horizon Europe project led by CNES & DLR maturing space-rated <sup>87</sup>Rb quantum accelerometer core.
+                    </p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border-t-4 border-emerald-500 border-x border-b border-slate-200">
+                    <span class="text-xs font-bold text-emerald-600">2030 Launch</span>
+                    <h5 class="font-bold text-slate-900 text-sm mt-1">CARIOQA Pathfinder</h5>
+                    <p class="text-xs text-slate-600 mt-1">
+                        Orbital deployment into 500 km LEO targeting &lt; 10⁻⁹ m/s²/√Hz gravimetric sensitivity over 3-5 year lifetime.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Table 3: Subsystem Specification Matrix -->
+            <div class="mt-6">
+                <h4 class="font-bold text-slate-900 text-base mb-3 flex items-center gap-2">
+                    <span>📋</span> Table 3: Subsystem Specification & Spaceflight Readiness Matrix
+                </h4>
+                <div class="overflow-x-auto border border-slate-200 rounded-lg">
+                    <table class="w-full text-left text-xs text-slate-700">
+                        <thead class="bg-slate-100 text-slate-900 font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">QSNS Architectural Layer</th>
+                                <th class="p-3">Core Hardware / Algorithm</th>
+                                <th class="p-3">Validated Flight Heritage</th>
+                                <th class="p-3">Quantitative Performance</th>
+                                <th class="p-3">Mitigated Failure Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 bg-white">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Quantum Inertial Core (Q-IMU)</td>
+                                <td class="p-3">Stern-Gerlach <sup>87</sup>Rb CAI + Titan/Innalabs IMU</td>
+                                <td class="p-3">CSS Gyro, ISS CAL, CARIOQA 2030</td>
+                                <td class="p-3 font-mono text-blue-700">7 × 10⁻⁷ m/s² accel bias</td>
+                                <td class="p-3">Dead-time aliasing via strapdown bridging</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Absolute Pulsar & Clock Framing</td>
+                                <td class="p-3">Si/Mo X-ray optics + Deep Space Atomic Clock</td>
+                                <td class="p-3">ISS NICER / SEXTANT, TG-2 POLAR</td>
+                                <td class="p-3 font-mono text-amber-700">&lt; 10 km RSS position error</td>
+                                <td class="p-3">Clock drift via DSAC atomic coupling</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Cooperative Surveillance Swarm</td>
+                                <td class="p-3">25 mW 1064 nm Heterodyne LRI + TMA Retroreflector</td>
+                                <td class="p-3">GRACE Follow-On LRI (106+ days lock)</td>
+                                <td class="p-3 font-mono text-indigo-700">200 pm/√Hz @ 5 Hz carrier</td>
+                                <td class="p-3">Impulsive micrometeoroid damage pre-warning</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-3 font-semibold text-slate-900">Adaptive AI & Estimation Engine</td>
+                                <td class="p-3">DDPG RL-AKF + GTSAM Factor Graph</td>
+                                <td class="p-3">GNSS-Denied Testbeds & Swarm Sim</td>
+                                <td class="p-3 font-mono text-emerald-700">0.6517 m outage precision</td>
+                                <td class="p-3">Non-Gaussian outliers via Δχ² weighting</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Publishing Declarations & Complete References -->
+        <section id="declarations" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8 space-y-8">
+            <!-- Formal Academic Declarations -->
+            <div>
+                <div class="border-b border-slate-200 pb-3 mb-6">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Formal Publishing Protocol</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-900 mt-1">
+                        Institutional Declarations & Metrological Traceability
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-700">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Author Contributions</h5>
+                        <p>
+                            <strong class="text-slate-900">SAMUELSON G</strong> conceived the multi-layered Quantum Space Navigation System (QSNS) architecture, formulated the mathematical integration between the Stern-Gerlach magnetically launched <sup>87</sup>Rb matter-wave interferometer and classical strapdown sensors, designed the cooperative surveillance bot LRI hazard-shielding topology, developed the hybrid Factor Graph Optimization (FGO) and DDPG RL-AKF estimation framework, and authored the complete research manuscript.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Funding & Project Acknowledgments</h5>
+                        <p>
+                            This research received no specific grant from any commercial, public, or non-profit funding agency. Architectural benchmarks incorporate publicly documented specifications from the European Commission Horizon Europe program (CARIOQA Phase A/B coordinated by CNES/DLR) and NASA technology demonstration programs (NICER/SEXTANT, DSAC, GRACE Follow-On).
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Competing Interests & Conflicts</h5>
+                        <p>
+                            The author (<strong class="text-slate-900">SAMUELSON G</strong>) declares no competing financial, commercial, or personal interests that could have appeared to influence the work reported in this paper.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Data, Ephemeris & Code Availability</h5>
+                        <p>
+                            Pulsar astronomical timing models, spin-down parameters (F₀, F₁, F₂), and barycentric Time-of-Arrival templates are accessible via NASA GSFC NICER archival data. Inter-satellite laser ranging noise statistics derive from open Level-1/2 GRACE-FO CSR data. Factor graph algorithms use the open-source Georgia Tech GTSAM framework.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Hardware & Metrological Traceability</h5>
+                        <p>
+                            All cold-atom interferometric phase shift derivations, Stern-Gerlach magnetic launch velocities (8.2 cm/s), and stability metrics (7 × 10⁻⁷ m/s² and 4 × 10⁻⁷ rad/s) are traceable to SI-anchored gravimetric standards where 1 mGal = 10⁻⁵ m/s² and 1 μGal = 10⁻⁸ m/s².
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h5 class="font-bold text-slate-900 text-sm mb-1 text-blue-900">Autonomous Space Safety & Ethics</h5>
+                        <p>
+                            No human or animal subjects were involved. Operational safety compliance enforces deterministic minimum-separation constraints within the factor graph cost surface, using continuous 88 dB-Hz LRI tracking and spiral reacquisition to guarantee collision-free formation flying.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Repository -->
+            <div class="pt-6 border-t border-slate-200">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                    <h4 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                        <span>📚</span> Complete Academic References (22 Citations)
+                    </h4>
+                    <input type="text" id="ref-search" onkeyup="filterReferences()" placeholder="Search references by author, keyword, or journal..." class="text-xs px-3 py-2 border border-slate-300 rounded-lg w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div id="ref-list" class="space-y-2 text-xs text-slate-700 max-h-96 overflow-y-auto pr-2">
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[1]</span> Architecture for a compact cold-atom accelerometer-gyroscope based on a magnetically launched atom interferometer, <em>arXiv:2405.13689</em> (2024).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[2]</span> Basic principles of inertial cold atom navigation sensors and magneto-optical trapping, <em>arXiv:2405.14910</em> (2024).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[3]</span> Realization of a cold atom gyroscope in space, <em>National Science Review</em>, arXiv:2405.20659, DOI: 10.1093/nsr/nwaf012 (2025).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[4]</span> Geiger, R., Landragin, A., Merlet, S., and Pereira Dos Santos, F., "High-accuracy inertial measurements with cold-atom sensors," <em>AVS Quantum Science</em> 2, 024702 (2020).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[5]</span> Barrett, B. et al., "Mobile and remote inertial sensing with atom interferometers," <em>Proc. Int. School of Physics 'Enrico Fermi'</em> 188, 493–555 (2014).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[6]</span> Wright, M. J. et al., "Cold Atom Inertial Sensors for Navigation Applications," <em>Frontiers in Physics</em> 10, 994459 (2022).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[7]</span> Savoie, D. et al., "Interleaved Atom Interferometry for High-Sensitivity Inertial Measurements," <em>Science Advances</em> 4, no. 12, eaau7948 (2018).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[8]</span> Devani, D. et al., "Gravity Sensing: Cold Atom Trap Onboard a 6U CubeSat," <em>CEAS Space Journal</em> 12, no. 4, 539–549 (2020).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[9]</span> Abend, S. et al., "Technology Roadmap for Cold-Atoms Based Quantum Inertial Sensor in Space," <em>AVS Quantum Science</em> 5, no. 1, 019201 (2023).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[10]</span> Templier, S. et al., "Tracking the Vector Acceleration with a Hybrid Quantum Accelerometer Triad," <em>Science Advances</em> 8, eadd3854 (2022).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[11]</span> European Commission, Joint Research Centre, <em>Cold Atom Interferometry for Inertial Navigation Sensors</em>, JRC122785 (2021).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[12]</span> CNES and DLR, <em>CARIOQA: Cold Atom Rubidium Interferometer in Orbit for Quantum Accelerometry Pathfinder Mission</em> (2025).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[13]</span> Winternitz, L. B. et al., "SEXTANT X-ray Pulsar Navigation Demonstration: Additional On-Orbit Results," <em>SpaceOps Conference</em>, NTRS 20180003358 (2018).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[14]</span> Review of X-ray pulsar spacecraft autonomous navigation and Solar System Barycenter timing models, <em>Chinese Journal of Aeronautics</em> 36, arXiv:2304.04154 (2023).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[15]</span> Grazing-incidence X-ray optics and millisecond pulsar navigation exposure modeling, University of Iowa Optical Research (2025).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[16]</span> NASA Deep Space Atomic Clock (DSAC) and CAPSTONE cislunar positioning architecture, <em>AIAA Journal of Spacecraft and Rockets</em>, DOI: 10.2514/1.A35334 (2024).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[17]</span> Kruger, J., <em>Factor Graph and Range-Only Cooperative Navigation for Distributed Spacecraft Swarms</em>, Stanford Doctoral Dissertation.
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[18]</span> Gustavson, T. L., <em>Precision Rotation Sensing Using Atom Interferometry</em>, Stanford Doctoral Dissertation.
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[19]</span> Relativistic phase shift determination in matter-wave interferometry, <em>arXiv:0806.3261v1</em>.
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[20]</span> Non-Gaussian INS-ATOMIC strapdown filtering and incremental chi-square robust weighting, <em>NAVIGATION (ION)</em> 73, no. 1.
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[21]</span> Abich, K. et al. (GRACE-FO LRI Collaboration), "In-Orbit Performance of the GRACE Follow-on Laser Ranging Interferometer," <em>Phys. Rev. Lett.</em> 123, 031101 (2019).
+                    </div>
+                    <div class="ref-item p-2.5 bg-slate-50 rounded border border-slate-200">
+                        <span class="font-bold text-blue-900">[22]</span> RL-AKF: An Adaptive Kalman Filter Navigation Algorithm Based on Reinforcement Learning, <em>ResearchGate Technical Publication</em> 341721054.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>© 2025 - 2026 <strong>SAMUELSON G</strong>. Quantum Space Navigation System Architecture.</p>
+            <p class="text-slate-500">Autonomous Deep-Space Navigation Metrology | Cold-Atom Interferometry | XNAV | Laser Ranging Swarms</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic & Chart Initialization -->
+    <script>
+        // Global Chart Handles
+        let quantumChart, xnavChart, anomalyChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initQuantumChart();
+            initXnavChart();
+            initAnomalyChart();
+
+            // Set up interactive sliders for Quantum Core
+            document.getElementById('slider-T').addEventListener('input', updateQuantumSim);
+            document.getElementById('slider-N').addEventListener('input', updateQuantumSim);
+        });
+
+        // 1. Quantum Inertial Core Simulator
+        function initQuantumChart() {
+            const ctx = document.getElementById('quantumChart').getContext('2d');
+            quantumChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0.1s', '1s', '10s', '100s', '1000s', '10000s', '48h'],
+                    datasets: [
+                        {
+                            label: 'Unassisted Classical Accelerometer Drift (m/s²)',
+                            data: [7e-4, 7e-4, 7e-4, 7e-4, 7e-4, 7e-4, 7e-5],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'QSNS Hybridized Q-IMU Allan Variance (m/s²)',
+                            data: [3e-7, 1e-7, 3e-8, 1e-8, 3e-9, 1e-9, 7e-7],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'logarithmic',
+                            title: { display: true, text: 'Accel Instability (m/s²)' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Integration Time (τ)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function updateQuantumSim() {
+            const T = parseInt(document.getElementById('slider-T').value);
+            const N_factor = parseInt(document.getElementById('slider-N').value);
+
+            document.getElementById('val-T').innerText = T + ' ms';
+            document.getElementById('val-N').innerText = N_factor.toFixed(1) + ' × 10⁶';
+
+            // Calculate scaled sensitivity scaling as 1 / (T^2 * sqrt(N))
+            const scale = (400 * 400 * Math.sqrt(5)) / (T * T * Math.sqrt(N_factor));
+            
+            const baseData = [3e-7, 1e-7, 3e-8, 1e-8, 3e-9, 1e-9, 7e-7];
+            const newData = baseData.map(val => val * scale);
+
+            quantumChart.data.datasets[1].data = newData;
+            quantumChart.update();
+        }
+
+        // 2. XNAV Convergence Simulator
+        function initXnavChart() {
+            const ctx = document.getElementById('xnavChart').getContext('2d');
+            xnavChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['100s', '300s', '600s', '1.2ks', '3.6ks', '5ks', '10ks', '48ks'],
+                    datasets: [{
+                        label: 'Position Error (km)',
+                        data: [45, 18, 10, 5.2, 1.8, 1.0, 0.6, 0.4],
+                        borderColor: '#d97706',
+                        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: { display: true, text: '3D RSS Error (km)' },
+                            min: 0, max: 50
+                        },
+                        x: { title: { display: true, text: 'X-Ray Exposure Time' } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        function setXnavBeacon(beacon) {
+            const btnCrab = document.getElementById('btn-crab');
+            const btnB1937 = document.getElementById('btn-b1937');
+            const btnMulti = document.getElementById('btn-multi');
+
+            // Reset styling
+            [btnCrab, btnB1937, btnMulti].forEach(btn => {
+                btn.className = 'py-2 px-3 rounded font-semibold border border-slate-200 bg-white text-slate-700 text-center transition hover:bg-slate-100';
+            });
+
+            if (beacon === 'crab') {
+                btnCrab.className = 'py-2 px-3 rounded font-bold border border-amber-300 bg-amber-100 text-amber-900 text-center transition';
+                xnavChart.data.datasets[0].data = [45, 18, 10, 5.2, 1.8, 1.0, 0.6, 0.4];
+                xnavChart.data.datasets[0].label = 'Crab Pulsar High-Flux Rapid Solution (km)';
+                xnavChart.data.datasets[0].borderColor = '#d97706';
+            } else if (beacon === 'b1937') {
+                btnB1937.className = 'py-2 px-3 rounded font-bold border border-blue-300 bg-blue-100 text-blue-900 text-center transition';
+                xnavChart.data.datasets[0].data = [60, 42, 30, 21, 12, 8.5, 4.2, 1.1];
+                xnavChart.data.datasets[0].label = 'PSR B1937+21 Long-Term Ultra-Stable Solution (km)';
+                xnavChart.data.datasets[0].borderColor = '#2563eb';
+            } else {
+                btnMulti.className = 'py-2 px-3 rounded font-bold border border-emerald-300 bg-emerald-100 text-emerald-900 text-center transition';
+                xnavChart.data.datasets[0].data = [35, 12, 5.8, 2.9, 1.1, 0.7, 0.3, 0.15];
+                xnavChart.data.datasets[0].label = '8-MSP Constellation Combined Solution (km)';
+                xnavChart.data.datasets[0].borderColor = '#059669';
+            }
+            xnavChart.update();
+        }
+
+        // 3. Swarm Anomaly Simulator
+        function initAnomalyChart() {
+            const ctx = document.getElementById('anomalyChart').getContext('2d');
+            anomalyChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['t=0s', 't=2s', 't=4s', 't=6s (Impact)', 't=8s', 't=10s', 't=12s', 't=14s'],
+                    datasets: [
+                        {
+                            label: 'LRI Range Residual (nm)',
+                            data: [0.2, 0.18, 0.22, 0.21, 0.19, 0.23, 0.20, 0.21],
+                            borderColor: '#4f46e5',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Robust Weight W_k',
+                            data: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],
+                            borderColor: '#10b981',
+                            borderDash: [3, 3],
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'LRI Residual (nm)' } },
+                        y1: { type: 'linear', position: 'right', min: 0, max: 1.1, title: { display: true, text: 'Robust Weight (0-1)' } }
+                    },
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function triggerAnomaly(type) {
+            const log = document.getElementById('anomaly-log');
+            if (type === 'micrometeoroid') {
+                anomalyChart.data.datasets[0].data = [0.2, 0.18, 0.22, 142.5, 38.2, 4.1, 0.4, 0.21];
+                anomalyChart.data.datasets[1].data = [1.0, 1.0, 1.0, 0.02, 0.15, 0.85, 1.0, 1.0];
+                log.innerText = "WARNING: Hypervelocity Micrometeoroid Impact Detected on Sentinel Bot 1! LRI Δv spike isolated. Innovation down-weighted (W_k = 0.02). Q-IMU protected.";
+                log.className = "text-xs font-mono bg-rose-950 text-rose-300 p-2.5 rounded border border-rose-800";
+            } else if (type === 'thruster') {
+                anomalyChart.data.datasets[0].data = [0.2, 0.18, 0.22, 18.4, 12.1, 8.2, 0.5, 0.21];
+                anomalyChart.data.datasets[1].data = [1.0, 1.0, 1.0, 0.35, 0.60, 0.90, 1.0, 1.0];
+                log.innerText = "ALERT: Bot 2 RCS Thruster Micro-Shock. Step-deconvolution filter active. Phase jump subtracted successfully.";
+                log.className = "text-xs font-mono bg-amber-950 text-amber-300 p-2.5 rounded border border-amber-800";
+            } else {
+                anomalyChart.data.datasets[0].data = [0.2, 0.18, 0.22, 0.21, 0.19, 0.23, 0.20, 0.21];
+                anomalyChart.data.datasets[1].data = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+                log.innerText = "STATUS: LRI Phase tracking nominal. Noise floor = 200 pm/√Hz. Robust Weight W_k = 1.00.";
+                log.className = "text-xs font-mono bg-slate-900 text-emerald-400 p-2.5 rounded border border-slate-800";
+            }
+            anomalyChart.update();
+        }
+
+        // 4. Factor Graph Node Inspector
+        function inspectFactor(type) {
+            const details = document.getElementById('factor-details');
+            if (type === 'xnav') {
+                details.innerHTML = `<div class="text-amber-400 font-bold">// UNARY XNAV FACTOR NODE (r_XNAV)</div>` +
+                    `<div>Measurement: Photon Arrival TOA Phase φ(t_SSB)</div>` +
+                    `<div>Covariance Matrix Σ_XNAV: Grazing-incidence optical noise floor</div>` +
+                    `<div>Residual Formulation: r_XNAV = φ_obs - φ_model(X_0,k, b(t))</div>`;
+            } else if (type === 'mothership') {
+                details.innerHTML = `<div class="text-blue-400 font-bold">// PRIMARY SPACECRAFT NODE (X_0,k)</div>` +
+                    `<div>States: Position r^n, Velocity v^n, Attitude C_b^n, Accel Bias b_a, Gyro Bias b_g</div>` +
+                    `<div>Connected Factors: Pre-integrated Q-IMU factor, Unary XNAV factor, Binary LRI factors to Bots</div>` +
+                    `<div>Adaptive Weighting: RL-AKF DDPG dynamic Q_k process noise update</div>`;
+            } else if (type === 'bot1') {
+                details.innerHTML = `<div class="text-emerald-400 font-bold">// SURVEILLANCE BOT SENTINEL NODE (X_1,k)</div>` +
+                    `<div>Sensing: 1064 nm Laser Ranging Interferometer (LRI) heterodyne beat note</div>` +
+                    `<div>Inter-Satellite Baseline: ρ_01 = || r_0 - r_1 ||_2</div>` +
+                    `<div>Noise Floor: 200 pm/√Hz @ 5 Hz carrier frequency</div>`;
+            }
+        }
+
+        // 5. Reference Filter
+        function filterReferences() {
+            const query = document.getElementById('ref-search').value.toLowerCase();
+            const items = document.querySelectorAll('.ref-item');
+            items.forEach(item => {
+                if (item.innerText.toLowerCase().includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
