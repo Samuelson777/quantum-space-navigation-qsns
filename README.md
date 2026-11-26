@@ -1,6 +1,6 @@
 # Quantum Space Navigation Architecture with Autonomous Adaptability via Cooperative Surveillance Bots (QSNS)
 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-blue.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-blue.svg)](https://github.com/Samuelson777/quantum-space-navigation-qsns/blob/main/LICENSE)
 [![Code License: MIT](https://img.shields.io/badge/Code_License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Status: Research Monograph & Interactive SPA](https://img.shields.io/badge/Status-Publication_Ready-indigo.svg)]()
 [![Author: SAMUELSON G](https://img.shields.io/badge/Author-SAMUELSON_G-0f172a.svg)]()
